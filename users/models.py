@@ -28,7 +28,7 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     objects = UserManager()
-    REQUIRED_FIELDS = ['username']
+    USERNAME_FIELD = 'username'
 
     def str(self):
         return f"{self.username}"
