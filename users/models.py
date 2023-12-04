@@ -1,6 +1,35 @@
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
-class Registration(models.Model):
-    email = models.EmailField()
-    username = models.CharField(max_length=20)
+class UserManager(BaseUserManager):
+
+    def create_user(self, username, email, password=None):
+        email = self.normalize_email(email)
+        user = self.model(username=username, email=email)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, username, email, password=None):
+        user = self.create_user(username=username, email=email, password=password)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+        return user
+
+
+class User(AbstractUser):
+    email = models.EmailField(unique=True, max_length=255)
+    username = models.CharField(max_length=255, unique=True)
+    is_verified = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+    objects = UserManager()
+    REQUIRED_FIELDS = ['username']
+
+    def str(self):
+        return f"{self.username}"
+
