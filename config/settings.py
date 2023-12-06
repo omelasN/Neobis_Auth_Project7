@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from decouple import config
 
@@ -16,7 +17,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL = 'users.User'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,6 +44,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "config.urls"
+AUTH_USER_MODEL = 'users.User'
 
 TEMPLATES = [
     {
@@ -114,3 +116,16 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+
