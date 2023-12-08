@@ -1,38 +1,40 @@
 from rest_framework import serializers
 from .models import User, UserManager
 from django.contrib import auth
-
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 class RegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, max_length=15, min_length=8)
-    password_confirm = serializers.CharField(write_only=True, max_length=15, min_length=8)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'password_confirm']
+        fields = ['username', 'email', 'password']
 
-    def save(self):
-        user = User(
-            username=self.validated_data['username'],
-            email=self.validated_data['email'])
-        password = self.validated_data['password']
+    def validate(self, attrs):
+        username = attrs.get('username', '')
+        password = attrs.get('password', '')
 
-        if not user.password.isalnum():
-            raise serializers.ValidationError("Password must consist of letters and numbers.")
+        if not username.isalnum():
+            raise serializers.ValidationError('The username should only contain alphanumeric characters')
+        return attrs
+
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
 
 
-       # contains_special = any(c in string.punctuation for c in password)
-        if not user.password.string.punctuation():
-            raise serializers.ValidationError("Password must consist of letters, numbers and symbols.")
+class EmailVerificationSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(min_length=555)
 
-        user.set_password(password)
-        user.save()
+    class Meta:
+        model = User
+        fields = ['token']
 
 
 class LoginSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=15, min_length=8, write_only=True)
-    tokens = serializers.SerializerMethodField
+    tokens = serializers.CharField(max_length=68, min_length=6, read_only=True)
 
     class Meta:
         model = User
@@ -43,8 +45,36 @@ class LoginSerializer(serializers.ModelSerializer):
         password = attrs.get('password', '')
 
         user = auth.authenticate(username=username, password=password)
-
+        import pdb
+        pdb.set_trace()
+        if not user:
+            raise AuthenticationFailed('Invalid credentials, try again')
+        if not user.is_active:
+            raise AuthenticationFailed('Account disabled, contact admin')
+        if not user.is_verified:
+            raise AuthenticationFailed('Email is not verified')
         return {
             'username': user.username,
             'tokens': user.tokens()
         }
+        return super().validate(attrs)
+
+
+class LogoutSerializer(serializers.ModelSerializer):
+    refresh = serializers.CharField()
+
+    default_error_messages = {
+        'bad_token': 'Token is expired or invalid'
+    }
+    def validate(self, attrs):
+        self.token = attrs['refresh']
+
+        return attrs
+
+    def save(self, **kwargs):
+
+        try:
+            RefreshToken(self.token).blacklist()
+
+        except TokenError:
+            self.fail('bad_token')
