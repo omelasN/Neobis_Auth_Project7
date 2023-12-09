@@ -41,23 +41,36 @@ class RegistrationView(generics.GenericAPIView):
 class VerifyEmail(APIView):
     serializer_class = EmailVerificationSerializer
 
-    token_param_config = openapi.Parameter('token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
+    token_param_config = openapi.Parameter('token', in_=openapi.IN_QUERY, description='Description',
+                                           type=openapi.TYPE_STRING)
 
     @swagger_auto_schema(manual_parameters=[token_param_config])
     def get(self, request):
-        token = request.Get.get('token')
+        if request.method != 'GET':
+            return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+        token = request.GET.get('token')
+        if not token:
+            return Response({'error': 'Token not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            payload = jwt.decode(token,  settings.SECRET_KEY)
+            payload = jwt.decode(token, settings.SECRET_KEY)
             user = User.objects.get(id=payload['user_id'])
+
             if not user.is_verified:
                 user.is_verified = True
                 user.save()
 
-            return Response({'email': 'Successfully activated'}, status=status.HTTP_200_OK)
-        except jwt.ExpiredSignatureError as identifier:
+                return Response({'email': 'Successfully activated'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'Email already verified'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except jwt.ExpiredSignatureError:
             return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
-        except jwt.exceptions.DecodeError as identifier:
+        except jwt.exceptions.DecodeError:
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class LoginView(generics.GenericAPIView):

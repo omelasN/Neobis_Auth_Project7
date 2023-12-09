@@ -4,6 +4,7 @@ from django.contrib import auth
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
+
 class RegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, max_length=15, min_length=8)
 
@@ -45,8 +46,6 @@ class LoginSerializer(serializers.ModelSerializer):
         password = attrs.get('password', '')
 
         user = auth.authenticate(username=username, password=password)
-        import pdb
-        pdb.set_trace()
         if not user:
             raise AuthenticationFailed('Invalid credentials, try again')
         if not user.is_active:
