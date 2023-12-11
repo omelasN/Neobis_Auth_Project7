@@ -35,28 +35,27 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=15, min_length=8, write_only=True)
-    tokens = serializers.CharField(max_length=68, min_length=6, read_only=True)
+    tokens = serializers.SerializerMethodField
 
     class Meta:
         model = User
         fields = ['username', 'password', 'tokens']
 
-    # def validate(self, attrs):
-    #     username = attrs.get('username', '')
-    #     password = attrs.get('password', '')
-    #
-    #     user = auth.authenticate(username=username, password=password)
-    #     if not user:
+    def validate(self, attrs):
+        username = attrs.get('username', '')
+        password = attrs.get('password', '')
+
+        user = auth.authenticate(username=username, password=password)
+
     #         raise AuthenticationFailed('Invalid credentials, try again')
     #     if not user.is_active:
     #         raise AuthenticationFailed('Account disabled, contact admin')
     #     if not user.is_verified:
     #         raise AuthenticationFailed('Email is not verified')
-    #     return {
-    #         'username': user.username,
-    #         'tokens': user.tokens()
-    #     }
-    #     return super().validate(attrs)
+        return {
+            'username': user.username,
+            'tokens': user.tokens()
+        }
 
 
 

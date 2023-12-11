@@ -14,10 +14,10 @@ import jwt
 from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from django.contrib.auth import logout as django_logout
 
 
 class RegistrationView(generics.GenericAPIView):
+    queryset = User.objects.all()
     serializer_class = RegistrationSerializer
 
     def post(self, request):
@@ -60,9 +60,6 @@ class RegistrationView(generics.GenericAPIView):
 #             return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
 #         except jwt.exceptions.DecodeError as identifier:
 #             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
