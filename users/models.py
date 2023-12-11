@@ -23,7 +23,6 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     email = models.EmailField(unique=True, max_length=255)
     username = models.CharField(max_length=255, unique=True)
-    is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 

@@ -24,12 +24,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return User.objects.create_user(**validated_data)
 
 
-class EmailVerificationSerializer(serializers.ModelSerializer):
-    token = serializers.CharField(min_length=555)
+#class EmailVerificationSerializer(serializers.ModelSerializer):
+   # token = serializers.CharField(min_length=555)
 
-    class Meta:
-        model = User
-        fields = ['token']
+    #class Meta:
+        #model = User
+        #fields = ['token']
 
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -41,39 +41,42 @@ class LoginSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'password', 'tokens']
 
-    def validate(self, attrs):
-        username = attrs.get('username', '')
-        password = attrs.get('password', '')
+    # def validate(self, attrs):
+    #     username = attrs.get('username', '')
+    #     password = attrs.get('password', '')
+    #
+    #     user = auth.authenticate(username=username, password=password)
+    #     if not user:
+    #         raise AuthenticationFailed('Invalid credentials, try again')
+    #     if not user.is_active:
+    #         raise AuthenticationFailed('Account disabled, contact admin')
+    #     if not user.is_verified:
+    #         raise AuthenticationFailed('Email is not verified')
+    #     return {
+    #         'username': user.username,
+    #         'tokens': user.tokens()
+    #     }
+    #     return super().validate(attrs)
 
-        user = auth.authenticate(username=username, password=password)
-        if not user:
-            raise AuthenticationFailed('Invalid credentials, try again')
-        if not user.is_active:
-            raise AuthenticationFailed('Account disabled, contact admin')
-        if not user.is_verified:
-            raise AuthenticationFailed('Email is not verified')
-        return {
-            'username': user.username,
-            'tokens': user.tokens()
-        }
-        return super().validate(attrs)
 
 
-class LogoutSerializer(serializers.ModelSerializer):
-    refresh = serializers.CharField()
 
-    default_error_messages = {
-        'bad_token': 'Token is expired or invalid'
-    }
-    def validate(self, attrs):
-        self.token = attrs['refresh']
-
-        return attrs
-
-    def save(self, **kwargs):
-
-        try:
-            RefreshToken(self.token).blacklist()
-
-        except TokenError:
-            self.fail('bad_token')
+    # def logout(self):
+    #     pass
+   # refresh = serializers.CharField()
+   #
+   #  default_error_messages = {
+   #     'bad_token': 'Token is expired or invalid'
+   #  }
+   #  def validate(self, attrs):
+   #     self.token = attrs['refresh']
+   #
+   #  return attrs
+   #
+   #  def save(self, **kwargs):
+   #
+   #      try:
+   #          RefreshToken(self.token).blacklist()
+   #
+   #      except TokenError:
+   #          self.fail('bad_token')
