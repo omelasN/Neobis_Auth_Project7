@@ -47,7 +47,10 @@ class LoginSerializer(serializers.ModelSerializer):
 
         user = auth.authenticate(username=username, password=password)
 
-    #         raise AuthenticationFailed('Invalid credentials, try again')
+        # if not user:
+        #     raise AuthenticationFailed('Invalid username or password, try again')
+        # if not user.password_validator:
+        #     raise AuthenticationFailed('Invalid password, try again')
     #     if not user.is_active:
     #         raise AuthenticationFailed('Account disabled, contact admin')
     #     if not user.is_verified:
@@ -79,3 +82,4 @@ class LoginSerializer(serializers.ModelSerializer):
    #
    #      except TokenError:
    #          self.fail('bad_token')
+
