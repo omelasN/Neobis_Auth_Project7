@@ -41,13 +41,13 @@ class RegistrationView(generics.GenericAPIView):
 
 
 # class VerifyEmail(APIView):
-#     serializer_class = EmailVerificationSerializer
+# serializer_class = EmailVerificationSerializer
 #
-#     token_param_config = openapi.Parameter('token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
+# token_param_config = openapi.Parameter('token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
 #
-#     @swagger_auto_schema(manual_parameters=[token_param_config])
-#     def get(self, request):
-#         token = request.Get.get('token')
+#    @swagger_auto_schema(manual_parameters=[token_param_config])
+#    def get(self, request):
+#        token = request.Get.get('token')
 #         try:
 #             payload = jwt.decode(token,  settings.SECRET_KEY)
 #             user = User.objects.get(id=payload['user_id'])
@@ -73,16 +73,16 @@ class LoginView(generics.GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class LogoutView(generics.GenericAPIView):
-#     serializer_class = LoginSerializer
-    # permission_classes = IsAuthenticated
+class LogoutView(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+    permission_classes = IsAuthenticated
 
-#     def post(self, request):
-# 
-#         serializer = self.serializer_class(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-# 
+    def post(self, request):
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
 #         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
