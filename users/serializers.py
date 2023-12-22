@@ -62,24 +62,22 @@ class LoginSerializer(serializers.ModelSerializer):
 
 
 
+class LogoutSerializer(serializers.ModelSerializer):
+    refresh = serializers.CharField()
+    def logout(self):
+        default_error_messages = {'bad_token': 'Token is expired or invalid'}
 
-    # def logout(self):
-    #     pass
-   # refresh = serializers.CharField()
-   #
-   #  default_error_messages = {
-   #     'bad_token': 'Token is expired or invalid'
-   #  }
-   #  def validate(self, attrs):
-   #     self.token = attrs['refresh']
-   #
-   #  return attrs
-   #
-   #  def save(self, **kwargs):
-   #
-   #      try:
-   #          RefreshToken(self.token).blacklist()
-   #
-   #      except TokenError:
-   #          self.fail('bad_token')
+
+    def validate(self, attrs):
+        self.token = attrs['refresh']
+
+        return attrs
+
+    def save(self, **kwargs):
+
+        try:
+            RefreshToken(self.token).blacklist()
+
+        except TokenError:
+            self.fail('bad_token')
 
